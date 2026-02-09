@@ -422,7 +422,7 @@ export default function ChatPage({ token, user, onLogout, theme, setTheme }) {
     <div className="relative min-h-screen">
       <TropicalWaves />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col gap-4">
+      <div className="relative max-w-md md:max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col gap-4">
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">

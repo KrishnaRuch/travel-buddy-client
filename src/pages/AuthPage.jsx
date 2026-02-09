@@ -63,7 +63,7 @@ export default function AuthPage({ onAuth, theme, setTheme }) {
     <div className="min-h-screen relative overflow-hidden">
       <TropicalWaves />
 
-      <div className="relative max-w-6xl mx-auto p-6">
+      <div className="relative max-w-md md:max-w-6xl mx-auto p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/[0.06] px-3 py-1.5 backdrop-blur">
