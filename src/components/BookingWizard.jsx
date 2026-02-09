@@ -24,12 +24,22 @@ function spokenToNumber(text) {
 
   const map = {
     // EN
-    one: 1, two: 2, three: 3, four: 4, five: 5,
-    six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-    eleven: 11, twelve: 12,
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
 
     // FR
-    un: 1, une: 1,
+    un: 1,
+    une: 1,
     deux: 2,
     trois: 3,
     quatre: 4,
@@ -81,10 +91,11 @@ const I18N = {
       selectValue: "Please select a value.",
       enterNumber: "Please enter a number.",
       between: (min, max) => `Please enter a value between ${min} and ${max}.`,
-      checkoutAfter: "Check-out must be after check-in."
+      checkoutAfter: "Check-out must be after check-in.",
+      minChars: (n) => `Please enter at least ${n} characters.`
     },
     stepsHotel: [
-      { key: "hotelNameOrArea", label: "Hotel name or area", kind: "text", placeholder: "e.g., Grand Baie", optional: false },
+      { key: "hotelNameOrArea", label: "Hotel name or area", kind: "text", placeholder: "e.g., Grand Baie", optional: false, minLen: 2 },
       { key: "checkIn", label: "Check-in date", kind: "date", optional: false },
       { key: "checkOut", label: "Check-out date", kind: "date", optional: false },
       { key: "rooms", label: "Rooms", kind: "number", min: 1, max: 20, optional: false },
@@ -94,8 +105,8 @@ const I18N = {
       { key: "specialRequests", label: "Special requests (optional)", kind: "text", placeholder: "e.g., breakfast included", optional: true }
     ],
     stepsTaxi: [
-      { key: "pickupLocation", label: "Pickup location", kind: "text", placeholder: "e.g., SSR Airport", optional: false },
-      { key: "dropoffLocation", label: "Dropoff location", kind: "text", placeholder: "e.g., Port Louis", optional: false },
+      { key: "pickupLocation", label: "Pickup location", kind: "text", placeholder: "e.g., SSR Airport", optional: false, minLen: 2 },
+      { key: "dropoffLocation", label: "Dropoff location", kind: "text", placeholder: "e.g., Port Louis", optional: false, minLen: 2 },
       { key: "pickupDate", label: "Pickup date", kind: "date", optional: false },
       { key: "pickupTime", label: "Pickup time", kind: "time", optional: false },
       { key: "passengers", label: "Number of passengers", kind: "number", min: 1, max: 50, optional: false },
@@ -123,10 +134,11 @@ const I18N = {
       selectValue: "Veuillez sélectionner une valeur.",
       enterNumber: "Veuillez saisir un nombre.",
       between: (min, max) => `Veuillez entrer une valeur entre ${min} et ${max}.`,
-      checkoutAfter: "La date de départ doit être après la date d’arrivée."
+      checkoutAfter: "La date de départ doit être après la date d’arrivée.",
+      minChars: (n) => `Veuillez saisir au moins ${n} caractères.`
     },
     stepsHotel: [
-      { key: "hotelNameOrArea", label: "Nom de l’hôtel ou zone", kind: "text", placeholder: "ex. Grand Baie", optional: false },
+      { key: "hotelNameOrArea", label: "Nom de l’hôtel ou zone", kind: "text", placeholder: "ex. Grand Baie", optional: false, minLen: 2 },
       { key: "checkIn", label: "Date d’arrivée", kind: "date", optional: false },
       { key: "checkOut", label: "Date de départ", kind: "date", optional: false },
       { key: "rooms", label: "Chambres", kind: "number", min: 1, max: 20, optional: false },
@@ -136,8 +148,8 @@ const I18N = {
       { key: "specialRequests", label: "Demandes spéciales (optionnel)", kind: "text", placeholder: "ex. petit-déjeuner inclus", optional: true }
     ],
     stepsTaxi: [
-      { key: "pickupLocation", label: "Lieu de prise en charge", kind: "text", placeholder: "ex. Aéroport SSR", optional: false },
-      { key: "dropoffLocation", label: "Destination", kind: "text", placeholder: "ex. Port-Louis", optional: false },
+      { key: "pickupLocation", label: "Lieu de prise en charge", kind: "text", placeholder: "ex. Aéroport SSR", optional: false, minLen: 2 },
+      { key: "dropoffLocation", label: "Destination", kind: "text", placeholder: "ex. Port-Louis", optional: false, minLen: 2 },
       { key: "pickupDate", label: "Date de prise en charge", kind: "date", optional: false },
       { key: "pickupTime", label: "Heure de prise en charge", kind: "time", optional: false },
       { key: "passengers", label: "Nombre de passagers", kind: "number", min: 1, max: 50, optional: false },
@@ -258,10 +270,19 @@ export default function BookingWizard({
 
     if (step.kind === "text") {
       if (step.optional) return true;
-      if (!v || !String(v).trim()) {
+
+      const s = String(v || "").trim();
+      if (!s) {
         setLocalError(T.errors.enterValue);
         return false;
       }
+
+      const minLen = step.minLen ?? 1;
+      if (s.length < minLen) {
+        setLocalError(T.errors.minChars(minLen));
+        return false;
+      }
+
       return true;
     }
 
@@ -516,7 +537,9 @@ export default function BookingWizard({
             <button
               type="button"
               className="h-11 w-11 rounded-2xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-50 font-bold"
-              onClick={() => setField(step.key, clamp(Number(value) - 1, step.min ?? 0, step.max ?? 9999))}
+              onClick={() =>
+                setField(step.key, clamp(Number(value) - 1, step.min ?? 0, step.max ?? 9999))
+              }
               disabled={submitting}
               aria-label={L === "fr" ? "Diminuer" : "Decrease"}
             >
@@ -544,7 +567,9 @@ export default function BookingWizard({
             <button
               type="button"
               className="h-11 w-11 rounded-2xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-50 font-bold"
-              onClick={() => setField(step.key, clamp(Number(value) + 1, step.min ?? 0, step.max ?? 9999))}
+              onClick={() =>
+                setField(step.key, clamp(Number(value) + 1, step.min ?? 0, step.max ?? 9999))
+              }
               disabled={submitting}
               aria-label={L === "fr" ? "Augmenter" : "Increase"}
             >

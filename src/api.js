@@ -20,6 +20,7 @@ export async function api(path, { method = "GET", token, body } = {}) {
 
   const text = await res.text();
   let data = null;
+
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
@@ -27,9 +28,17 @@ export async function api(path, { method = "GET", token, body } = {}) {
   }
 
   if (!res.ok) {
-    const msg =
+    let msg =
       (data && (data.error || data.message)) ||
       `Request failed (${res.status})`;
+
+    // ✅ If server is returning Zod validation issues, surface them
+    if (data?.issues?.length) {
+      msg = data.issues
+        .map((i) => `${(i.path || []).join(".") || "field"}: ${i.message}`)
+        .join(" | ");
+    }
+
     throw new Error(msg);
   }
 
